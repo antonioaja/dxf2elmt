@@ -37,6 +37,10 @@ The .elmt file be outputted in the same directory as the executable. It will ret
 * `ParseError(#)`: This occurs due to an impromper .dxf file
     * Current fix: Resave .dxf file using a reliable CAD program in order to correct compliant .dxf file
 
+## Compiling
+
+Compiled using Cargo (1.62.0).
+
 ## Credits
 
 * [QElectroTech](https://qelectrotech.org/)

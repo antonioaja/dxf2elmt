@@ -267,7 +267,9 @@ fn main() -> dxf::DxfResult<()> {
                     j += 1;
                 }
 
+                lwpolyline_xml.add_attribute("closed", "false");
                 lwpolyline_xml.add_attribute("antialias", "false");
+                
                 if lwpolyline.thickness > 0.1 {
                     lwpolyline_xml.add_attribute(
                         "style",
@@ -287,7 +289,7 @@ fn main() -> dxf::DxfResult<()> {
             
             // **TODO** Rework into rectangle
             EntityType::Solid(ref solid) => {
-                let mut solid_xml = XMLElement::new("solid");
+                let mut solid_xml = XMLElement::new("polygon");
                 
                 solid_xml.add_attribute("x1", solid.first_corner.x);
                 solid_xml.add_attribute("y1", -solid.first_corner.y);
@@ -298,6 +300,7 @@ fn main() -> dxf::DxfResult<()> {
                 solid_xml.add_attribute("x4", solid.fourth_corner.x);
                 solid_xml.add_attribute("y4", -solid.fourth_corner.y);
 
+                solid_xml.add_attribute("closed", "true");
                 solid_xml.add_attribute("antialias", "false");
 
                 if solid.thickness > 0.5 {

@@ -21,17 +21,17 @@ fn main() -> dxf::DxfResult<()> {
     println!("{} loaded...", file_name);
 
     // Intialize counts
-    let mut circle_count = 0;
-    let mut line_count = 0;
-    let mut arc_count = 0;
-    let mut spline_count = 0;
-    let mut text_count = 0;
-    let mut ellipse_count = 0;
-    let mut polyline_count = 0;
-    let mut lwpolyline_count = 0;
-    let mut solid_count = 0;
-    let mut other_count = 0;
-    let mut _temp = 0.0;
+    let mut circle_count: u32 = 0;
+    let mut line_count: u32 = 0;
+    let mut arc_count: u32 = 0;
+    let mut spline_count: u32 = 0;
+    let mut text_count: u32 = 0;
+    let mut ellipse_count: u32 = 0;
+    let mut polyline_count: u32 = 0;
+    let mut lwpolyline_count: u32 = 0;
+    let mut solid_count: u32 = 0;
+    let mut other_count: u32 = 0;
+    let mut _temp:f64 = 0.0;
 
     // Create output file for .elmt
     let mut out_file =
@@ -160,7 +160,7 @@ fn main() -> dxf::DxfResult<()> {
                 description.add_child(arc_xml);
                 arc_count += 1;
             }
-            EntityType::Spline(ref spline) => {
+            EntityType::Spline(ref _spline) => {
                 spline_count += 1;
             }
             EntityType::Text(ref text) => {
@@ -168,8 +168,8 @@ fn main() -> dxf::DxfResult<()> {
                 text_xml.add_attribute("x", text.location.x);
                 text_xml.add_attribute("y", -text.location.y);
 
-                if text.rotation.abs() > 0.001 {
-                    text_xml.add_attribute("rotation", (text.rotation - 180.0));
+                if text.rotation.abs() > 0.001 && text.rotation.abs() < 359.999 {
+                    text_xml.add_attribute("rotation", text.rotation - 180.0);
                 } else {
                     text_xml.add_attribute("rotation", 0);
                 }

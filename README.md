@@ -22,12 +22,13 @@ The .elmt file be outputted in the same directory as the executable. It will ret
 * Texts
 * Ellipses
 * Polylines
+* LwPolylines
+* Solids
 
 ## To Be Added
 
 * Support for the following
     * Splines
-    * LwPolylines
     * Remaining 2d entities
 
 * Better error messages

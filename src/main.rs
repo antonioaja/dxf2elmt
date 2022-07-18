@@ -236,7 +236,9 @@ fn main() -> dxf::DxfResult<()> {
                     j += 1;
                 }
 
+                polyline_xml.add_attribute("closed", "false");
                 polyline_xml.add_attribute("antialias", "false");
+                
                 if polyline.thickness > 0.1 {
                     polyline_xml.add_attribute(
                         "style",

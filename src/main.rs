@@ -9,6 +9,7 @@ use std::env;
 use std::fs::File;
 use std::ops::{Add, Mul};
 use std::time::*;
+use uuid::*;
 
 #[derive(Copy, Clone, Debug)]
 struct Point {
@@ -82,6 +83,11 @@ fn main() -> dxf::DxfResult<()> {
     definition.add_attribute("version", "0.80");
     definition.add_attribute("link_type", "simple");
     definition.add_attribute("type", "element");
+
+    // Create uuid
+    let mut uuid = XMLElement::new("uuid");
+    uuid.add_attribute("uuid", format!("{{{}}}", Uuid::new_v4()));
+    definition.add_child(uuid);
 
     // Define names
     let mut names = XMLElement::new("names");

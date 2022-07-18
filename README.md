@@ -24,11 +24,12 @@ The .elmt file be outputted in the same directory as the executable. It will ret
 * Polylines
 * LwPolylines
 * Solids
+* Splines
 
 ## To Be Added
 
 * Support for the following
-    * Splines
+    * Step control for splines
     * Remaining 2d entities
 
 * Better error messages
@@ -47,3 +48,4 @@ Compiled using Cargo (1.62.0).
 * [QElectroTech](https://qelectrotech.org/)
 * [dxf-rs](https://github.com/IxMilia/dxf-rs)
 * [simple-xml-builder](https://github.com/Accelbread/simple-xml-builder)
+* [bspline](https://github.com/Twinklebear/bspline)

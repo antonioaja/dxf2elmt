@@ -1,3 +1,4 @@
+extern crate bspline;
 extern crate dxf;
 extern crate simple_xml_builder;
 
@@ -6,7 +7,37 @@ use dxf::Drawing;
 use simple_xml_builder::*;
 use std::env;
 use std::fs::File;
+use std::ops::{Add, Mul};
 use std::time::*;
+
+#[derive(Copy, Clone, Debug)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+impl Point {
+    fn new(x: f64, y: f64) -> Point {
+        Point { x: x, y: y }
+    }
+}
+impl Mul<f64> for Point {
+    type Output = Point;
+    fn mul(self, rhs: f64) -> Point {
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+impl Add for Point {
+    type Output = Point;
+    fn add(self, rhs: Point) -> Point {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
 
 fn main() -> dxf::DxfResult<()> {
     // Start recording time
@@ -31,7 +62,7 @@ fn main() -> dxf::DxfResult<()> {
     let mut lwpolyline_count: u32 = 0;
     let mut solid_count: u32 = 0;
     let mut other_count: u32 = 0;
-    let mut _temp:f64 = 0.0;
+    let mut _temp: f64 = 0.0;
 
     // Create output file for .elmt
     let mut out_file =
@@ -160,7 +191,54 @@ fn main() -> dxf::DxfResult<()> {
                 description.add_child(arc_xml);
                 arc_count += 1;
             }
-            EntityType::Spline(ref _spline) => {
+            EntityType::Spline(ref spline) => {
+                let mut i: usize = 0;
+                let mut points: Vec<Point> = Vec::new();
+
+                for _a in &spline.control_points {
+                    points.push(Point::new(
+                        spline.control_points[i].x,
+                        spline.control_points[i].y,
+                    ));
+                    i += 1;
+                }
+
+                i = 0;
+                let mut knots: Vec<f64> = Vec::new();
+                for _a in &spline.knot_values {
+                    knots.push(spline.knot_values[i]);
+                    i += 1;
+                }
+
+                let curr_spline = bspline::BSpline::new(
+                    spline.degree_of_curve.try_into().unwrap(),
+                    points,
+                    knots,
+                );
+
+                let step: f64 = (curr_spline.knot_domain().1 - curr_spline.knot_domain().0) / 100.0;
+
+                let mut spline_xml = XMLElement::new("polygon");
+
+                let mut j: f64 = curr_spline.knot_domain().0;
+                i = 0;
+                while j < curr_spline.knot_domain().1 {
+                    spline_xml.add_attribute(format!("x{}", (i + 1)), curr_spline.point(j).x);
+                    spline_xml.add_attribute(format!("y{}", (i + 1)), -curr_spline.point(j).y);
+                    j += step;
+                    i += 1;
+                }
+
+                spline_xml.add_attribute("closed", "false");
+                spline_xml.add_attribute("antialias", "false");
+
+                spline_xml.add_attribute(
+                    "style",
+                    "line-style:normal;line-weight:thin;filling:none;color:black",
+                );
+
+                description.add_child(spline_xml);
+
                 spline_count += 1;
             }
             EntityType::Text(ref text) => {
@@ -238,7 +316,7 @@ fn main() -> dxf::DxfResult<()> {
 
                 polyline_xml.add_attribute("closed", "false");
                 polyline_xml.add_attribute("antialias", "false");
-                
+
                 if polyline.thickness > 0.1 {
                     polyline_xml.add_attribute(
                         "style",
@@ -255,7 +333,6 @@ fn main() -> dxf::DxfResult<()> {
 
                 polyline_count += 1;
             }
-
             EntityType::LwPolyline(ref lwpolyline) => {
                 let mut lwpolyline_xml = XMLElement::new("polygon");
 
@@ -269,7 +346,7 @@ fn main() -> dxf::DxfResult<()> {
 
                 lwpolyline_xml.add_attribute("closed", "false");
                 lwpolyline_xml.add_attribute("antialias", "false");
-                
+
                 if lwpolyline.thickness > 0.1 {
                     lwpolyline_xml.add_attribute(
                         "style",
@@ -286,11 +363,11 @@ fn main() -> dxf::DxfResult<()> {
 
                 lwpolyline_count += 1;
             }
-            
+
             // **TODO** Rework into rectangle
             EntityType::Solid(ref solid) => {
                 let mut solid_xml = XMLElement::new("polygon");
-                
+
                 solid_xml.add_attribute("x1", solid.first_corner.x);
                 solid_xml.add_attribute("y1", -solid.first_corner.y);
                 solid_xml.add_attribute("x2", solid.second_corner.x);
@@ -317,7 +394,6 @@ fn main() -> dxf::DxfResult<()> {
                 description.add_child(solid_xml);
                 solid_count += 1;
             }
-
             _ => {
                 other_count += 1;
             }

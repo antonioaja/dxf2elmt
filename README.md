@@ -1,5 +1,5 @@
 # dxf2elmt
-dxf2elmt is CLI program which can convert .dxf files into .elmt files. dxf2elmt supports ascii and binary .dxf files.
+dxf2elmt is CLI program which can convert .dxf files into .elmt files. The program supports both ascii and binary .dxf files.
 
 The goal of this program is to create a fast and accurate conversion tool to be used with [QElectroTech](https://qelectrotech.org/). Compared to QET's own conversion [tool](https://github.com/rdsivd/DXFtoQET-2020), dxf2elmt is over 1000x times faster.
 

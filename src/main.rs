@@ -258,12 +258,17 @@ fn main() -> dxf::DxfResult<()> {
                     text_xml.add_attribute("rotation", 0);
                 }
 
+                let mut _tmp = &text.text_style_name[..];
+                if _tmp == "STANDARD"{
+                    _tmp = "Arial Narrow";
+                }
+
                 text_xml.add_attribute("text", &text.value[..]);
                 text_xml.add_attribute(
                     "font",
                     format!(
                         "{},{},-1,5,0,0,0,0,0,0,normal",
-                        &text.text_style_name[..],
+                        _tmp,
                         text.text_height.ceil()
                     ),
                 );

@@ -6,6 +6,7 @@ use dxf::entities::*;
 use dxf::Drawing;
 use simple_xml_builder::*;
 use std::env;
+use std::fmt::*;
 use std::fs::File;
 use std::ops::{Add, Mul};
 use std::time::*;
@@ -146,7 +147,7 @@ fn main() -> dxf::DxfResult<()> {
                 if line.thickness > 0.5 {
                     line_xml.add_attribute(
                         "style",
-                        "line-style:normal;line-weight:normal;filling:none;color:black",
+                        "line-style:normal;line-weight:normal;filling:none;color:black}",
                     );
                 } else {
                     line_xml.add_attribute(
@@ -258,8 +259,10 @@ fn main() -> dxf::DxfResult<()> {
                     text_xml.add_attribute("rotation", 0);
                 }
 
+                text_xml.add_attribute("color", format!("{:x}", e.common.color_24_bit));
+
                 let mut _tmp = &text.text_style_name[..];
-                if _tmp == "STANDARD"{
+                if _tmp == "STANDARD" {
                     _tmp = "Arial Narrow";
                 }
 
@@ -272,18 +275,7 @@ fn main() -> dxf::DxfResult<()> {
                         text.text_height.ceil()
                     ),
                 );
-                text_xml.add_attribute("antialias", "false");
-                if text.thickness > 0.5 {
-                    text_xml.add_attribute(
-                        "style",
-                        "line-style:normal;line-weight:normal;filling:none;color:black",
-                    );
-                } else {
-                    text_xml.add_attribute(
-                        "style",
-                        "line-style:normal;line-weight:thin;filling:none;color:black",
-                    );
-                }
+
                 description.add_child(text_xml);
                 text_count += 1;
             }

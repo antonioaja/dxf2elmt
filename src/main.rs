@@ -252,7 +252,7 @@ fn main() -> dxf::DxfResult<()> {
                 text_xml.add_attribute("x", text.location.x);
                 text_xml.add_attribute("y", -text.location.y);
 
-                if (text.rotation.abs().round() as i64 % 360 != 0) || (text.rotation.abs().round() as i64 != 0){
+                if text.rotation.abs().round() as i64 % 360 != 0 {
                     text_xml.add_attribute("rotation", text.rotation - 180.0);
                 } else {
                     text_xml.add_attribute("rotation", 0);

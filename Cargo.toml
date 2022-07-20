@@ -14,3 +14,4 @@ dxf = "0.5.0"
 simple-xml-builder = "1.1.0"
 bspline = "1.1.0"
 uuid = { version = "1.1.2", features = ["serde", "v4"] }
+tempfile = "3.3.0"

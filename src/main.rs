@@ -1,16 +1,19 @@
 extern crate bspline;
 extern crate dxf;
 extern crate simple_xml_builder;
+extern crate tempfile;
 
 use dxf::entities::*;
 use dxf::Drawing;
 use simple_xml_builder::*;
 use std::env;
 use std::fmt::*;
-use std::fs::File;
+use std::fs::*;
 use std::ops::{Add, Mul};
 use std::time::*;
 use uuid::*;
+use tempfile::tempfile;
+use std::io::Read;
 
 #[derive(Copy, Clone, Debug)]
 struct Point {
@@ -47,11 +50,24 @@ fn main() -> dxf::DxfResult<()> {
 
     // Collect file name argument
     let args: Vec<String> = env::args().collect();
+    if args.len() == 1 {
+        panic!("No file name given.");
+    }
     let file_name: &str = &format!("{}", args[1]);
+
+    // Check whether no .elmt is requested
+    let mut verbose_output = false;
+    if args.len() == 3{
+        if args[2] == "-v"{
+            verbose_output = true;
+        }
+    }
 
     // Load dxf file
     let drawing = Drawing::load_file(file_name)?;
-    println!("{} loaded...", file_name);
+    if !verbose_output{
+        println!("{} loaded...", file_name);
+    }
 
     // Intialize counts
     let mut circle_count: u32 = 0;
@@ -67,13 +83,17 @@ fn main() -> dxf::DxfResult<()> {
     let mut _temp: f64 = 0.0;
 
     // Create output file for .elmt
-    let mut out_file =
-        File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4])).unwrap();
-    println!(
-        "{}.elmt was created... \nNow converting {}...",
-        &file_name[0..file_name.len() - 4],
-        file_name
-    );
+    let mut out_file = tempfile()?;
+    if !verbose_output{
+        drop(out_file);
+        out_file =
+            File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4])).unwrap();
+        println!(
+            "{}.elmt was created... \nNow converting {}...",
+            &file_name[0..file_name.len() - 4],
+            file_name
+        );
+    }
 
     // Definition defintion ;)
     let mut definition = XMLElement::new("definition");
@@ -407,23 +427,30 @@ fn main() -> dxf::DxfResult<()> {
     definition.add_child(description);
     definition.write(&mut out_file)?;
 
-    println!("Conversion complete!\n");
+    if !verbose_output{
+        println!("Conversion complete!\n");
 
-    // Print stats
-    println!("STATS");
-    println!("~~~~~~~~~~~~~~~");
-    println!("Circles: {}", circle_count);
-    println!("Lines: {}", line_count);
-    println!("Arcs: {}", arc_count);
-    println!("Splines: {}", spline_count);
-    println!("Texts: {}", text_count);
-    println!("Ellipses: {}", ellipse_count);
-    println!("Polylines: {}", polyline_count);
-    println!("LwPolylines: {}", lwpolyline_count);
-    println!("Solids: {}", solid_count);
-    println!("Currently Unsupported: {}", other_count);
+        // Print stats
+        println!("STATS");
+        println!("~~~~~~~~~~~~~~~");
+        println!("Circles: {}", circle_count);
+        println!("Lines: {}", line_count);
+        println!("Arcs: {}", arc_count);
+        println!("Splines: {}", spline_count);
+        println!("Texts: {}", text_count);
+        println!("Ellipses: {}", ellipse_count);
+        println!("Polylines: {}", polyline_count);
+        println!("LwPolylines: {}", lwpolyline_count);
+        println!("Solids: {}", solid_count);
+        println!("Currently Unsupported: {}", other_count);
 
-    println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
+        println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
+    }else{
+        let mut v_contents = String::new();
+        out_file.read_to_string(&mut v_contents)?;
+        println!("{}", v_contents);
+        drop(out_file);
+    }
 
     Ok(())
 }

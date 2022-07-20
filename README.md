@@ -34,8 +34,6 @@ The .elmt file be outputted in the same directory as the executable. It will ret
 
 * Better error messages
 
-* Refactor code to be more idiomatic
-
 ## Known Issue(s)
 
 * `ParseError(#)`: This occurs due to an improper .dxf file
@@ -51,3 +49,4 @@ Compiled using Cargo (1.62.0).
 * [dxf-rs](https://github.com/IxMilia/dxf-rs)
 * [simple-xml-builder](https://github.com/Accelbread/simple-xml-builder)
 * [bspline](https://github.com/Twinklebear/bspline)
+* [tempfile](https://github.com/Stebalien/tempfile)

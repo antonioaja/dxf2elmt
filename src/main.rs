@@ -14,7 +14,7 @@ use std::time::*;
 use tempfile::tempfile;
 use uuid::*;
 
-pub mod general;
+pub mod entity_writer;
 
 fn main() -> dxf::DxfResult<()> {
     // Start recording time
@@ -73,38 +73,40 @@ fn main() -> dxf::DxfResult<()> {
     let mut description: XMLElement = XMLElement::new("description");
 
     // Loop through all entities, appending to xml file
-    drawing.entities().for_each(|e| {
-        match e.specific {
-            EntityType::Circle(ref circle) => {
-                add_circle(circle, &mut description, &mut circle_count);
-            }
-            EntityType::Line(ref line) => {
-                add_line(line, &mut description, &mut line_count);
-            }
-            EntityType::Arc(ref arc) => {
-                add_arc(arc, _temp, &mut description, &mut arc_count);
-            }
-            EntityType::Spline(ref spline) => {
-                add_spline(spline, &mut description, &mut spline_count);
-            }
-            EntityType::Text(ref text) => {
-                add_text(text, e, &mut description, &mut text_count);
-            }
-            EntityType::Ellipse(ref ellipse) => {
-                add_ellipse(ellipse, &mut description, &mut ellipse_count);
-            }
-            EntityType::Polyline(ref polyline) => {
-                add_polyline(polyline, &mut description, &mut polyline_count);
-            }
-            EntityType::LwPolyline(ref lwpolyline) => {
-                add_lwpolyline(lwpolyline, &mut description, &mut lwpolyline_count);
-            }
-            EntityType::Solid(ref solid) => {
-                add_solid(solid, &mut description, &mut solid_count);
-            }
-            _ => {
-                other_count += 1;
-            }
+    drawing.entities().for_each(|e| match e.specific {
+        EntityType::Circle(ref circle) => {
+            entity_writer::circle::add_circle(circle, &mut description, &mut circle_count);
+        }
+        EntityType::Line(ref line) => {
+            entity_writer::line::add_line(line, &mut description, &mut line_count);
+        }
+        EntityType::Arc(ref arc) => {
+            entity_writer::arc::add_arc(arc, _temp, &mut description, &mut arc_count);
+        }
+        EntityType::Spline(ref spline) => {
+            entity_writer::spline::add_spline(spline, &mut description, &mut spline_count);
+        }
+        EntityType::Text(ref text) => {
+            entity_writer::text::add_text(text, e, &mut description, &mut text_count);
+        }
+        EntityType::Ellipse(ref ellipse) => {
+            entity_writer::ellipse::add_ellipse(ellipse, &mut description, &mut ellipse_count);
+        }
+        EntityType::Polyline(ref polyline) => {
+            entity_writer::polyline::add_polyline(polyline, &mut description, &mut polyline_count);
+        }
+        EntityType::LwPolyline(ref lwpolyline) => {
+            entity_writer::lwpolyline::add_lwpolyline(
+                lwpolyline,
+                &mut description,
+                &mut lwpolyline_count,
+            );
+        }
+        EntityType::Solid(ref solid) => {
+            entity_writer::solid::add_solid(solid, &mut description, &mut solid_count);
+        }
+        _ => {
+            other_count += 1;
         }
     });
 
@@ -139,264 +141,6 @@ fn main() -> dxf::DxfResult<()> {
     }
 
     Ok(())
-}
-
-fn add_solid(solid: &Solid, description: &mut XMLElement, solid_count: &mut u32) {
-    let mut solid_xml: XMLElement = XMLElement::new("polygon");
-    solid_xml.add_attribute("x1", solid.first_corner.x);
-    solid_xml.add_attribute("y1", -solid.first_corner.y);
-    solid_xml.add_attribute("x2", solid.second_corner.x);
-    solid_xml.add_attribute("y2", -solid.second_corner.y);
-    solid_xml.add_attribute("x3", solid.third_corner.x);
-    solid_xml.add_attribute("y3", -solid.third_corner.y);
-    solid_xml.add_attribute("x4", solid.fourth_corner.x);
-    solid_xml.add_attribute("y4", -solid.fourth_corner.y);
-    solid_xml.add_attribute("closed", "true");
-    solid_xml.add_attribute("antialias", "false");
-    if solid.thickness > 0.5 {
-        solid_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black",
-        );
-    } else {
-        solid_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(solid_xml);
-    *solid_count += 1;
-}
-
-fn add_lwpolyline(lwpolyline: &LwPolyline, description: &mut XMLElement, lwpolyline_count: &mut u32) {
-    let mut lwpolyline_xml: XMLElement = XMLElement::new("polygon");
-    let mut j: usize = 0;
-    for _i in &lwpolyline.vertices {
-        lwpolyline_xml.add_attribute(format!("x{}", (j + 1)), lwpolyline.vertices[j].x);
-        lwpolyline_xml
-            .add_attribute(format!("y{}", (j + 1)), -lwpolyline.vertices[j].y);
-        j += 1;
-    }
-    lwpolyline_xml.add_attribute("closed", "false");
-    lwpolyline_xml.add_attribute("antialias", "false");
-    if lwpolyline.thickness > 0.1 {
-        lwpolyline_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black",
-        );
-    } else {
-        lwpolyline_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(lwpolyline_xml);
-    *lwpolyline_count += 1;
-}
-
-fn add_polyline(polyline: &Polyline, description: &mut XMLElement, polyline_count: &mut u32) {
-    let mut polyline_xml: XMLElement = XMLElement::new("polygon");
-    let mut j: usize = 0;
-    for _i in &polyline.__vertices_and_handles {
-        polyline_xml.add_attribute(
-            format!("x{}", (j + 1)),
-            polyline.__vertices_and_handles[j].0.location.x,
-        );
-        polyline_xml.add_attribute(
-            format!("y{}", (j + 1)),
-            -polyline.__vertices_and_handles[j].0.location.y,
-        );
-        j += 1;
-    }
-    polyline_xml.add_attribute("closed", "false");
-    polyline_xml.add_attribute("antialias", "false");
-    if polyline.thickness > 0.1 {
-        polyline_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black",
-        );
-    } else {
-        polyline_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(polyline_xml);
-    *polyline_count += 1;
-}
-
-fn add_ellipse(ellipse: &Ellipse, description: &mut XMLElement, ellipse_count: &mut u32) {
-    let mut ellipse_xml: XMLElement = XMLElement::new("ellipse");
-    ellipse_xml.add_attribute("x", ellipse.center.x - ellipse.major_axis.x);
-    ellipse_xml.add_attribute(
-        "y",
-        -ellipse.center.y - ellipse.major_axis.x * ellipse.minor_axis_ratio,
-    );
-    ellipse_xml.add_attribute("height", ellipse.major_axis.x * 2.0);
-    ellipse_xml.add_attribute(
-        "width",
-        ellipse.major_axis.x * 2.0 * ellipse.minor_axis_ratio,
-    );
-    ellipse_xml.add_attribute("antialias", "false");
-    ellipse_xml.add_attribute(
-        "style",
-        "line-style:normal;line-weight:thin;filling:none;color:black",
-    );
-    description.add_child(ellipse_xml);
-    *ellipse_count += 1;
-}
-
-fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_count: &mut u32) {
-    let mut text_xml: XMLElement = XMLElement::new("text");
-    text_xml.add_attribute("x", text.location.x);
-    text_xml.add_attribute("y", -text.location.y);
-    if text.rotation.abs().round() as i64 % 360 != 0 {
-        text_xml.add_attribute("rotation", text.rotation - 180.0);
-    } else {
-        text_xml.add_attribute("rotation", 0);
-    }
-    text_xml.add_attribute("color", format!("{:x}", e.common.color_24_bit));
-    let mut _tmp = &text.text_style_name[..];
-    if _tmp == "STANDARD" {
-        _tmp = "Arial Narrow";
-    }
-    text_xml.add_attribute("text", &text.value[..]);
-    text_xml.add_attribute(
-        "font",
-        format!(
-            "{},{},-1,5,0,0,0,0,0,0,normal",
-            _tmp,
-            text.text_height.ceil()
-        ),
-    );
-    description.add_child(text_xml);
-    *text_count += 1;
-}
-
-fn add_spline(spline: &Spline, description: &mut XMLElement, spline_count: &mut u32) {
-    let mut i: usize = 0;
-    let mut points: Vec<general::Point> = Vec::new();
-    for _a in &spline.control_points {
-        points.push(general::Point::new(
-            spline.control_points[i].x,
-            spline.control_points[i].y,
-        ));
-        i += 1;
-    }
-    i = 0;
-    let mut knots: Vec<f64> = Vec::new();
-    for _a in &spline.knot_values {
-        knots.push(spline.knot_values[i]);
-        i += 1;
-    }
-    let curr_spline = bspline::BSpline::new(
-        spline.degree_of_curve.try_into().unwrap(),
-        points,
-        knots,
-    );
-    let step: f64 = (curr_spline.knot_domain().1 - curr_spline.knot_domain().0) / 100.0;
-    let mut spline_xml = XMLElement::new("polygon");
-    let mut j: f64 = curr_spline.knot_domain().0;
-    i = 0;
-    while j < curr_spline.knot_domain().1 {
-        spline_xml.add_attribute(format!("x{}", (i + 1)), curr_spline.point(j).x);
-        spline_xml.add_attribute(format!("y{}", (i + 1)), -curr_spline.point(j).y);
-        j += step;
-        i += 1;
-    }
-    spline_xml.add_attribute("closed", "false");
-    spline_xml.add_attribute("antialias", "false");
-    spline_xml.add_attribute(
-        "style",
-        "line-style:normal;line-weight:thin;filling:none;color:black",
-    );
-    description.add_child(spline_xml);
-    *spline_count += 1;
-}
-
-fn add_arc(arc: &Arc, mut _temp: f64, description: &mut XMLElement, arc_count: &mut u32) {
-    let mut arc_xml: XMLElement = XMLElement::new("arc");
-    arc_xml.add_attribute("x", arc.center.x - arc.radius);
-    arc_xml.add_attribute("y", -arc.center.y - arc.radius);
-    arc_xml.add_attribute("width", arc.radius * 2.0);
-    arc_xml.add_attribute("height", arc.radius * 2.0);
-    if arc.start_angle < 0.0 {
-        arc_xml.add_attribute("start", -arc.start_angle);
-    } else {
-        arc_xml.add_attribute("start", arc.start_angle);
-    }
-    if arc.start_angle > arc.end_angle {
-        _temp = (360.0 - arc.start_angle) + arc.end_angle;
-    } else {
-        _temp = arc.end_angle - arc.start_angle;
-    }
-    if _temp < 0.0 {
-        arc_xml.add_attribute("angle", -_temp);
-    } else {
-        arc_xml.add_attribute("angle", _temp);
-    }
-    arc_xml.add_attribute("antialias", "false");
-    if arc.thickness > 0.1 {
-        arc_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black",
-        );
-    } else {
-        arc_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(arc_xml);
-    *arc_count += 1;
-}
-
-fn add_line(line: &Line, description: &mut XMLElement, line_count: &mut u32) {
-    let mut line_xml: XMLElement = XMLElement::new("line");
-    line_xml.add_attribute("x1", line.p1.x);
-    line_xml.add_attribute("y1", -line.p1.y);
-    line_xml.add_attribute("length1", 1.5);
-    line_xml.add_attribute("end1", "none");
-    line_xml.add_attribute("x2", line.p2.x);
-    line_xml.add_attribute("y2", -line.p2.y);
-    line_xml.add_attribute("length2", 1.5);
-    line_xml.add_attribute("end2", "none");
-    line_xml.add_attribute("antialias", "false");
-    if line.thickness > 0.5 {
-        line_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black}",
-        );
-    } else {
-        line_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(line_xml);
-    *line_count += 1;
-}
-
-fn add_circle(circle: &Circle, description: &mut XMLElement, circle_count: &mut u32) {
-    let mut circle_xml: XMLElement = XMLElement::new("ellipse");
-    circle_xml.add_attribute("x", circle.center.x - circle.radius);
-    circle_xml.add_attribute("y", -circle.center.y - circle.radius);
-    circle_xml.add_attribute("height", circle.radius * 2.0);
-    circle_xml.add_attribute("width", circle.radius * 2.0);
-    circle_xml.add_attribute("antialias", "false");
-    if circle.thickness > 0.5 {
-        circle_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:normal;filling:none;color:black",
-        );
-    } else {
-        circle_xml.add_attribute(
-            "style",
-            "line-style:normal;line-weight:thin;filling:none;color:black",
-        );
-    }
-    description.add_child(circle_xml);
-    *circle_count += 1;
 }
 
 fn set_information(definition: &mut XMLElement) {

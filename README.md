@@ -9,10 +9,16 @@ dxf2elmt requires only one input from the user, the input file.
 For example:
 
 ```bash
-./dxf2elmt test.dxf
+./dxf2elmt my_file.dxf
 ```
 
 The .elmt file be outputted in the same directory as the executable. It will retain the name of the .dxf file.
+
+If you wish to forgo outputting a .elmt file, you can use the "-v" argument for verbose output. This will output the contents of the .elmt file into the terminal without actually creating the file. For example:
+
+```bash
+./dxf2elmt my_file.dxf -v
+```
 
 ## Supported Entities
 

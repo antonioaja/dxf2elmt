@@ -9,11 +9,12 @@ use simple_xml_builder::*;
 use std::env;
 use std::fmt::*;
 use std::fs::*;
+use std::io::SeekFrom;
+use std::io::*;
 use std::ops::{Add, Mul};
 use std::time::*;
-use uuid::*;
 use tempfile::tempfile;
-use std::io::Read;
+use uuid::*;
 
 #[derive(Copy, Clone, Debug)]
 struct Point {
@@ -57,15 +58,15 @@ fn main() -> dxf::DxfResult<()> {
 
     // Check whether no .elmt is requested
     let mut verbose_output = false;
-    if args.len() == 3{
-        if args[2] == "-v"{
+    if args.len() == 3 {
+        if args[2] == "-v" {
             verbose_output = true;
         }
     }
 
     // Load dxf file
     let drawing = Drawing::load_file(file_name)?;
-    if !verbose_output{
+    if !verbose_output {
         println!("{} loaded...", file_name);
     }
 
@@ -84,10 +85,8 @@ fn main() -> dxf::DxfResult<()> {
 
     // Create output file for .elmt
     let mut out_file = tempfile()?;
-    if !verbose_output{
-        drop(out_file);
-        out_file =
-            File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4])).unwrap();
+    if !verbose_output {
+        out_file = File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4])).unwrap();
         println!(
             "{}.elmt was created... \nNow converting {}...",
             &file_name[0..file_name.len() - 4],
@@ -427,7 +426,7 @@ fn main() -> dxf::DxfResult<()> {
     definition.add_child(description);
     definition.write(&mut out_file)?;
 
-    if !verbose_output{
+    if !verbose_output {
         println!("Conversion complete!\n");
 
         // Print stats
@@ -445,11 +444,12 @@ fn main() -> dxf::DxfResult<()> {
         println!("Currently Unsupported: {}", other_count);
 
         println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
-    }else{
+    } else {
+        out_file.seek(SeekFrom::Start(0)).unwrap();
+
         let mut v_contents = String::new();
-        out_file.read_to_string(&mut v_contents)?;
-        println!("{}", v_contents);
-        drop(out_file);
+        out_file.read_to_string(&mut v_contents).unwrap();
+        print!("{}", v_contents);
     }
 
     Ok(())

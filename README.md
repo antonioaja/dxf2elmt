@@ -26,13 +26,15 @@ The .elmt file be outputted in the same directory as the executable. It will ret
 * Solids
 * Splines
 
-## To Be Added
+## To Do
 
 * Support for the following
     * Step control for splines
     * Remaining 2d entities
 
 * Better error messages
+
+* Refactor code to be more idiomatic
 
 ## Known Issue(s)
 

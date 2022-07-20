@@ -1,20 +1,15 @@
-extern crate bspline;
 extern crate dxf;
 extern crate simple_xml_builder;
-extern crate tempfile;
 
 use dxf::entities::*;
 use dxf::Drawing;
 use simple_xml_builder::*;
 use std::env;
-use std::fs::*;
-use std::io::SeekFrom;
-use std::io::*;
 use std::time::*;
-use tempfile::tempfile;
-use uuid::*;
 
+pub mod elmt_writer;
 pub mod entity_writer;
+pub mod file_writer;
 
 fn main() -> dxf::DxfResult<()> {
     // Start recording time
@@ -55,19 +50,19 @@ fn main() -> dxf::DxfResult<()> {
     let mut _temp: f64 = 0.0;
 
     // Create output file for .elmt
-    let mut out_file = create_file(verbose_output, file_name)?;
+    let mut out_file = file_writer::create_file(verbose_output, file_name).unwrap();
 
     // Definition defintion ;)
-    let mut definition = set_definition();
+    let mut definition = elmt_writer::set_definition();
 
     // Create uuid
-    set_uuid(&mut definition);
+    elmt_writer::set_uuid(&mut definition);
 
     // Define names
-    set_names(file_name, &mut definition);
+    elmt_writer::set_names(file_name, &mut definition);
 
     // Define information
-    set_information(&mut definition);
+    elmt_writer::set_information(&mut definition);
 
     // Start description
     let mut description: XMLElement = XMLElement::new("description");
@@ -111,8 +106,7 @@ fn main() -> dxf::DxfResult<()> {
     });
 
     // Write to output file
-    definition.add_child(description);
-    definition.write(&mut out_file)?;
+    elmt_writer::end_elmt(definition, description, &mut out_file);
 
     if !verbose_output {
         println!("Conversion complete!\n");
@@ -133,58 +127,8 @@ fn main() -> dxf::DxfResult<()> {
 
         println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
     } else {
-        out_file.seek(SeekFrom::Start(0)).unwrap();
-
-        let mut v_contents = String::new();
-        out_file.read_to_string(&mut v_contents).unwrap();
-        print!("{}", v_contents);
+        file_writer::verbose_print(out_file);
     }
 
     Ok(())
-}
-
-fn set_information(definition: &mut XMLElement) {
-    let mut information: XMLElement = XMLElement::new("informations");
-    information.add_text("Created using dxf2elmt!");
-    definition.add_child(information);
-}
-
-fn set_names(file_name: &str, definition: &mut XMLElement) {
-    let mut names: XMLElement = XMLElement::new("names");
-    let mut name = XMLElement::new("name");
-    name.add_attribute("lang", "en");
-    name.add_text(format!("{}", &file_name[0..file_name.len() - 4]));
-    names.add_child(name);
-    definition.add_child(names);
-}
-
-fn set_uuid(definition: &mut XMLElement) {
-    let mut uuid: XMLElement = XMLElement::new("uuid");
-    uuid.add_attribute("uuid", format!("{{{}}}", Uuid::new_v4()));
-    definition.add_child(uuid);
-}
-
-fn set_definition() -> XMLElement {
-    let mut definition: XMLElement = XMLElement::new("definition");
-    definition.add_attribute("height", 10);
-    definition.add_attribute("width", 10);
-    definition.add_attribute("hotspot_x", 0);
-    definition.add_attribute("hotspot_y", 0);
-    definition.add_attribute("version", "0.80");
-    definition.add_attribute("link_type", "simple");
-    definition.add_attribute("type", "element");
-    definition
-}
-
-fn create_file(verbose_output: bool, file_name: &str) -> Result<File> {
-    let mut out_file = tempfile()?;
-    if !verbose_output {
-        out_file = File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4])).unwrap();
-        println!(
-            "{}.elmt was created... \nNow converting {}...",
-            &file_name[0..file_name.len() - 4],
-            file_name
-        );
-    }
-    Ok(out_file)
 }

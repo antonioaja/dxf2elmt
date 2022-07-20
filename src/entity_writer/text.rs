@@ -10,7 +10,20 @@ pub fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_coun
     } else {
         text_xml.add_attribute("rotation", 0);
     }
-    text_xml.add_attribute("color", format!("{:x}", e.common.color_24_bit));
+    
+    let mut _temp_color: String = format!("{:x}", e.common.color_24_bit);
+    let mut text_color = String::new();
+    let mut i = _temp_color.chars().count();
+    loop {
+        if i >= 6 {
+            break;
+        }
+        text_color += "0";
+        i += 1;
+    }
+    text_color += &_temp_color;
+    text_xml.add_attribute("color", text_color);
+    
     let mut _tmp = &text.text_style_name[..];
     if _tmp == "STANDARD" {
         _tmp = "Arial Narrow";

@@ -8,6 +8,9 @@ edition = "2021"
 [profile.release]
 strip = true  # Automatically strip symbols from the binary.
 lto = true
+codegen-units = 1
+#panic = "abort"
+#debug = true
 
 [dependencies]
 dxf = "0.5.0"

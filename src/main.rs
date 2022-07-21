@@ -54,7 +54,6 @@ fn main() -> dxf::DxfResult<()> {
     let mut lwpolyline_count: u32 = 0;
     let mut solid_count: u32 = 0;
     let mut other_count: u32 = 0;
-    let mut _temp: f64 = 0.0;
 
     // Create output file for .elmt
     let mut out_file = file_writer::create_file(verbose_output, file_name).unwrap();
@@ -83,7 +82,7 @@ fn main() -> dxf::DxfResult<()> {
             entity_writer::line::add_line(line, &mut description, &mut line_count);
         }
         EntityType::Arc(ref arc) => {
-            entity_writer::arc::add_arc(arc, _temp, &mut description, &mut arc_count);
+            entity_writer::arc::add_arc(arc, &mut description, &mut arc_count);
         }
         EntityType::Spline(ref spline) => {
             entity_writer::spline::add_spline(spline, &mut description, &mut spline_count);

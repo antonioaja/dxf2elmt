@@ -1,7 +1,9 @@
 use dxf::entities::*;
 use simple_xml_builder::XMLElement;
 
-pub fn add_arc(arc: &Arc, mut _temp: f64, description: &mut XMLElement, arc_count: &mut u32) {
+pub fn add_arc(arc: &Arc, description: &mut XMLElement, arc_count: &mut u32) {
+    let mut _temp: f64;
+    
     let mut arc_xml: XMLElement = XMLElement::new("arc");
     arc_xml.add_attribute("x", arc.center.x - arc.radius);
     arc_xml.add_attribute("y", -arc.center.y - arc.radius);

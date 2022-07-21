@@ -4,8 +4,24 @@ extern crate simple_xml_builder;
 use dxf::entities::*;
 use dxf::Drawing;
 use simple_xml_builder::*;
-use std::env;
 use std::time::*;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+   /// The .dxf file to convert
+   #[clap(short, long, value_parser)]
+   file_name: String,
+
+   /// Activates verbose output, eliminates .elmt file writing
+   #[clap(short, long, value_parser,  default_value_t = false)]
+   verbose: bool,
+
+   /// Converts text entities into dynamic text instead of the default text box
+   #[clap(short, long, value_parser,  default_value_t = false)]
+   dtext: bool,
+}
 
 pub mod elmt_writer;
 pub mod entity_writer;
@@ -15,23 +31,16 @@ fn main() -> dxf::DxfResult<()> {
     // Start recording time
     let now = Instant::now();
 
-    // Collect file name argument
-    let args: Vec<String> = env::args().collect();
-    if args.len() == 1 {
-        panic!("No file name given!");
-    }
-    let file_name: &str = &args[1].to_string();
-
-    // Check whether no .elmt is requested
-    let mut verbose_output: bool = false;
-    if args.len() == 3 && args[2] == "-v" {
-        verbose_output = true;
-    }
+    // Collect arguments
+    let args = Args::parse();
+    let file_name = &args.file_name.to_string();
+    let verbose_output = args.verbose;
+    let _dtext = args.dtext;
 
     // Load dxf file
     let drawing: Drawing = Drawing::load_file(file_name)?;
     if !verbose_output {
-        println!("{} loaded...", file_name);
+        println!("{} loaded...", format!("{:?}",file_name));
     }
 
     // Intialize counts

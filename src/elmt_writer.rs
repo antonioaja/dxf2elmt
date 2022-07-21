@@ -12,7 +12,7 @@ pub fn set_names(file_name: &str, definition: &mut XMLElement) {
     let mut names: XMLElement = XMLElement::new("names");
     let mut name = XMLElement::new("name");
     name.add_attribute("lang", "en");
-    name.add_text(format!("{}", &file_name[0..file_name.len() - 4]));
+    name.add_text((&file_name[0..file_name.len() - 4]).to_string());
     names.add_child(name);
     definition.add_child(names);
 }

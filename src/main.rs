@@ -20,14 +20,12 @@ fn main() -> dxf::DxfResult<()> {
     if args.len() == 1 {
         panic!("No file name given.");
     }
-    let file_name: &str = &format!("{}", args[1]);
+    let file_name: &str = &args[1].to_string();
 
     // Check whether no .elmt is requested
     let mut verbose_output: bool = false;
-    if args.len() == 3 {
-        if args[2] == "-v" {
-            verbose_output = true;
-        }
+    if args.len() == 3 && args[2] == "-v" {
+        verbose_output = true;
     }
 
     // Load dxf file

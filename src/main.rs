@@ -32,15 +32,15 @@ fn main() -> dxf::DxfResult<()> {
     let now = Instant::now();
 
     // Collect arguments
-    let args = Args::parse();
-    let file_name = &args.file_name.to_string();
-    let verbose_output = args.verbose;
-    let _dtext = args.dtext;
+    let args: Args = Args::parse();
+    let file_name: &String = &args.file_name;
+    let verbose_output: bool = args.verbose;
+    let _dtext: bool = args.dtext;
 
     // Load dxf file
     let drawing: Drawing = Drawing::load_file(file_name)?;
     if !verbose_output {
-        println!("{} loaded...", format!("{:?}",file_name));
+        println!("{} loaded...",file_name);
     }
 
     // Intialize counts

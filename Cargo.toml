@@ -9,8 +9,13 @@ edition = "2021"
 strip = true  # Automatically strip symbols from the binary.
 lto = true
 codegen-units = 1
-#panic = "abort"
-#debug = true
+#panic = "abort" # Could cause crashes
+
+[profile.dev]
+opt-level = 2
+
+[profile.dev.package."*"]
+opt-level = 3
 
 [dependencies]
 dxf = "0.5.0"

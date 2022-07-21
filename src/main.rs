@@ -18,7 +18,7 @@ fn main() -> dxf::DxfResult<()> {
     // Collect file name argument
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
-        panic!("No file name given.");
+        panic!("No file name given!");
     }
     let file_name: &str = &args[1].to_string();
 

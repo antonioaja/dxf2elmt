@@ -1,33 +1,34 @@
 extern crate dxf;
 extern crate simple_xml_builder;
 
+use anyhow::*;
+use clap::Parser;
 use dxf::entities::*;
 use dxf::Drawing;
 use simple_xml_builder::*;
 use std::time::*;
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-   /// The .dxf file to convert
-   #[clap(short, long, value_parser)]
-   file_name: String,
+    /// The .dxf file to convert
+    #[clap(short, long, value_parser)]
+    file_name: String,
 
-   /// Activates verbose output, eliminates .elmt file writing
-   #[clap(short, long, value_parser,  default_value_t = false)]
-   verbose: bool,
+    /// Activates verbose output, eliminates .elmt file writing
+    #[clap(short, long, value_parser, default_value_t = false)]
+    verbose: bool,
 
-   /// Converts text entities into dynamic text instead of the default text box
-   #[clap(short, long, value_parser,  default_value_t = false)]
-   dtext: bool,
+    /// Converts text entities into dynamic text instead of the default text box
+    #[clap(short, long, value_parser, default_value_t = false)]
+    dtext: bool,
 }
 
 pub mod elmt_writer;
 pub mod entity_writer;
 pub mod file_writer;
 
-fn main() -> dxf::DxfResult<()> {
+fn main() -> Result<()> {
     // Start recording time
     let now = Instant::now();
 
@@ -40,7 +41,7 @@ fn main() -> dxf::DxfResult<()> {
     // Load dxf file
     let drawing: Drawing = Drawing::load_file(file_name)?;
     if !verbose_output {
-        println!("{} loaded...",file_name);
+        println!("{} loaded...", file_name);
     }
 
     // Intialize counts

@@ -1,8 +1,12 @@
 use dxf::entities::*;
 use simple_xml_builder::XMLElement;
 
-pub fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_count: &mut u32) {
+pub fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_count: &mut u32, dynamic_text: bool) {
     let mut text_xml: XMLElement = XMLElement::new("text");
+    if !dynamic_text{
+        text_xml = XMLElement::new("text");
+    }
+    
     text_xml.add_attribute("x", text.location.x);
     text_xml.add_attribute("y", -text.location.y);
     if text.rotation.abs().round() as i64 % 360 != 0 {
@@ -11,9 +15,10 @@ pub fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_coun
         text_xml.add_attribute("rotation", 0);
     }
     
-    let mut _temp_color: String = format!("{:x}", e.common.color_24_bit);
-    let mut text_color = String::new();
-    let mut i = _temp_color.chars().count();
+    let _temp_color: String = format!("{:x}", e.common.color_24_bit);
+    let mut text_color: String = String::new();
+    let mut i: usize = _temp_color.chars().count();
+    text_color += "#";
     loop {
         if i >= 6 {
             break;

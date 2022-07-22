@@ -22,6 +22,10 @@ struct Args {
     /// Converts text entities into dynamic text instead of the default text box
     #[clap(short, long, value_parser, default_value_t = false)]
     dtext: bool,
+
+    /// Determine the number of lines you want each spline to have (more lines = greater resolution)
+    #[clap(short, long, value_parser, default_value_t = 100)]
+    spline_step: u32,
 }
 
 pub mod elmt_writer;
@@ -30,13 +34,14 @@ pub mod file_writer;
 
 fn main() -> Result<()> {
     // Start recording time
-    let now = Instant::now();
+    let now: Instant = Instant::now();
 
     // Collect arguments
     let args: Args = Args::parse();
     let file_name: &String = &args.file_name;
     let verbose_output: bool = args.verbose;
-    let _dtext: bool = args.dtext;
+    let dtext: bool = args.dtext;
+    let spline_step: u32 = args.spline_step;
 
     // Load dxf file
     let drawing: Drawing = Drawing::load_file(file_name)?;
@@ -86,10 +91,10 @@ fn main() -> Result<()> {
             entity_writer::arc::add_arc(arc, &mut description, &mut arc_count);
         }
         EntityType::Spline(ref spline) => {
-            entity_writer::spline::add_spline(spline, &mut description, &mut spline_count);
+            entity_writer::spline::add_spline(spline, &mut description, &mut spline_count, spline_step);
         }
         EntityType::Text(ref text) => {
-            entity_writer::text::add_text(text, e, &mut description, &mut text_count);
+            entity_writer::text::add_text(text, e, &mut description, &mut text_count, dtext);
         }
         EntityType::Ellipse(ref ellipse) => {
             entity_writer::ellipse::add_ellipse(ellipse, &mut description, &mut ellipse_count);

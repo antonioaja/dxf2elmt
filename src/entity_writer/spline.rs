@@ -33,7 +33,7 @@ impl Add for Point {
     }
 }
 
-pub fn add_spline(spline: &Spline, description: &mut XMLElement, spline_count: &mut u32) {
+pub fn add_spline(spline: &Spline, description: &mut XMLElement, spline_count: &mut u32, spline_step: u32) {
     let mut i: usize = 0;
     let mut points: Vec<Point> = Vec::new();
     for _a in &spline.control_points {
@@ -51,7 +51,7 @@ pub fn add_spline(spline: &Spline, description: &mut XMLElement, spline_count: &
     }
     let curr_spline =
         bspline::BSpline::new(spline.degree_of_curve.try_into().unwrap(), points, knots);
-    let step: f64 = (curr_spline.knot_domain().1 - curr_spline.knot_domain().0) / 100.0;
+    let step: f64 = (curr_spline.knot_domain().1 - curr_spline.knot_domain().0) / (spline_step as f64);
     let mut spline_xml = XMLElement::new("polygon");
     let mut j: f64 = curr_spline.knot_domain().0;
     i = 0;

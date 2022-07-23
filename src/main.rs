@@ -44,7 +44,7 @@ fn main() -> Result<()> {
     let spline_step: u32 = args.spline_step;
 
     // Load dxf file
-    let drawing: Drawing = Drawing::load_file(file_name).context(format!("Failed to load {}", file_name))?;
+    let drawing: Drawing = Drawing::load_file(file_name).context(format!("Failed to load {}...\n\tMake sure the file is a valid .dxf file.", file_name))?;
     if !verbose_output {
         println!("{} loaded...", file_name);
     }

@@ -1,6 +1,7 @@
 use uuid::*;
 use simple_xml_builder::*;
 use std::fs::File;
+use anyhow::*;
 
 pub fn set_information(definition: &mut XMLElement) {
     let mut information: XMLElement = XMLElement::new("informations");
@@ -37,5 +38,5 @@ pub fn set_definition() -> XMLElement {
 
 pub fn end_elmt(mut definition: XMLElement, description: XMLElement, out_file: &mut File) {
     definition.add_child(description);
-    definition.write(out_file).unwrap();
+    definition.write(out_file).context("Failed to write output file.").unwrap();
 }

@@ -44,7 +44,7 @@ fn main() -> Result<()> {
     let spline_step: u32 = args.spline_step;
 
     // Load dxf file
-    let drawing: Drawing = Drawing::load_file(file_name)?;
+    let drawing: Drawing = Drawing::load_file(file_name).context(format!("Failed to load {}", file_name))?;
     if !verbose_output {
         println!("{} loaded...", file_name);
     }
@@ -62,7 +62,7 @@ fn main() -> Result<()> {
     let mut other_count: u32 = 0;
 
     // Create output file for .elmt
-    let mut out_file = file_writer::create_file(verbose_output, file_name).unwrap();
+    let mut out_file = file_writer::create_file(verbose_output, file_name).context("Failed to create output file.")?;
 
     // Definition defintion ;)
     let mut definition = elmt_writer::set_definition();
@@ -139,7 +139,7 @@ fn main() -> Result<()> {
 
         println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
     } else {
-        file_writer::verbose_print(out_file);
+        file_writer::verbose_print(out_file).context("Failed to print output to terminal.")?;
     }
 
     Ok(())

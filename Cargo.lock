@@ -219,7 +219,6 @@ dependencies = [
  "bspline",
  "clap",
  "dxf",
- "min-max",
  "simple-xml-builder",
  "tempfile",
  "uuid 1.1.2",
@@ -372,15 +371,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "min-max"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe75516622e34f7e712e0f60b6a9bb1b2df281d1985c11a21fa5dabc1e34885f"
-dependencies = [
- "partial-min-max",
-]
-
-[[package]]
 name = "miniz_oxide"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -505,12 +495,6 @@ name = "os_str_bytes"
 version = "6.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "648001efe5d5c0102d8cea768e348da85d90af8ba91f0bea908f157951493cd4"
-
-[[package]]
-name = "partial-min-max"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6448add382c60bbbc64f9dab41309a12ec530c05191601042f911356ac09758c"
 
 [[package]]
 name = "png"

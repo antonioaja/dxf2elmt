@@ -24,12 +24,12 @@ pub fn set_uuid(definition: &mut XMLElement) {
     definition.add_child(uuid);
 }
 
-pub fn set_definition(min: &mut [i32], max: &mut [i32]) -> XMLElement {
+pub fn set_definition() -> XMLElement {
     let mut definition: XMLElement = XMLElement::new("definition");
-    definition.add_attribute("height", max[1] - min[1]);
-    definition.add_attribute("width", max[0] - min[0]);
-    definition.add_attribute("hotspot_x", (max[0] - min[0]) / 2);
-    definition.add_attribute("hotspot_y", (max[1] - min[1]) / 2);
+    definition.add_attribute("height", 10);
+    definition.add_attribute("width", 10);
+    definition.add_attribute("hotspot_x", 5);
+    definition.add_attribute("hotspot_y", 5);
     definition.add_attribute("version", "0.80");
     definition.add_attribute("link_type", "simple");
     definition.add_attribute("type", "element");

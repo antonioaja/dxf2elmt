@@ -1,7 +1,6 @@
 extern crate bspline;
 
 use dxf::entities::*;
-use min_max::*;
 use simple_xml_builder::XMLElement;
 use std::ops::{Add, Mul};
 
@@ -39,9 +38,6 @@ pub fn add_spline(
     description: &mut XMLElement,
     spline_count: &mut u32,
     spline_step: u32,
-    min: &mut [i32],
-    max: &mut [i32],
-    first_entity: bool,
 ) {
     let mut i: usize = 0;
     let mut points: Vec<Point> = Vec::new();
@@ -65,19 +61,9 @@ pub fn add_spline(
     let mut spline_xml = XMLElement::new("polygon");
     let mut j: f64 = curr_spline.knot_domain().0;
     i = 0;
-    if first_entity {
-        min[0] = curr_spline.point(j).x as i32;
-        min[1] = -curr_spline.point(j).y as i32;
-        max[0] = curr_spline.point(j).x as i32;
-        max[1] = -curr_spline.point(j).y as i32;
-    }
     while j < curr_spline.knot_domain().1 {
         spline_xml.add_attribute(format!("x{}", (i + 1)), curr_spline.point(j).x);
         spline_xml.add_attribute(format!("y{}", (i + 1)), -curr_spline.point(j).y);
-        min[0] = min!(min[0], curr_spline.point(j).x as i32);
-        min[1] = min!(min[1], -curr_spline.point(j).y as i32);
-        max[0] = max!(max[0], curr_spline.point(j).x as i32);
-        max[1] = max!(max[1], -curr_spline.point(j).y as i32);
         j += step;
         i += 1;
     }

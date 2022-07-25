@@ -64,11 +64,6 @@ fn main() -> Result<()> {
     let mut solid_count: u32 = 0;
     let mut other_count: u32 = 0;
 
-    // Account for dimensions of drawing
-    let mut min: [i32; 2] = [0, 0];
-    let mut max: [i32; 2] = [10, 10];
-    let mut first_entity: bool = true;
-
     let mut description: XMLElement = XMLElement::new("description");
 
     // Loop through all entities, appending to xml file
@@ -77,17 +72,7 @@ fn main() -> Result<()> {
             entity_writer::circle::add_circle(circle, &mut description, &mut circle_count);
         }
         EntityType::Line(ref line) => {
-            entity_writer::line::add_line(
-                line,
-                &mut description,
-                &mut line_count,
-                &mut min,
-                &mut max,
-                first_entity,
-            );
-            if first_entity {
-                first_entity = false;
-            }
+            entity_writer::line::add_line(line, &mut description, &mut line_count);
         }
         EntityType::Arc(ref arc) => {
             entity_writer::arc::add_arc(arc, &mut description, &mut arc_count);
@@ -98,13 +83,7 @@ fn main() -> Result<()> {
                 &mut description,
                 &mut spline_count,
                 spline_step,
-                &mut min,
-                &mut max,
-                first_entity,
             );
-            if first_entity {
-                first_entity = false;
-            }
         }
         EntityType::Text(ref text) => {
             entity_writer::text::add_text(text, e, &mut description, &mut text_count, dtext);
@@ -113,43 +92,17 @@ fn main() -> Result<()> {
             entity_writer::ellipse::add_ellipse(ellipse, &mut description, &mut ellipse_count);
         }
         EntityType::Polyline(ref polyline) => {
-            entity_writer::polyline::add_polyline(
-                polyline,
-                &mut description,
-                &mut polyline_count,
-                &mut min,
-                &mut max,
-                first_entity,
-            );
-            if first_entity {
-                first_entity = false;
-            }
+            entity_writer::polyline::add_polyline(polyline, &mut description, &mut polyline_count);
         }
         EntityType::LwPolyline(ref lwpolyline) => {
             entity_writer::lwpolyline::add_lwpolyline(
                 lwpolyline,
                 &mut description,
                 &mut lwpolyline_count,
-                &mut min,
-                &mut max,
-                first_entity,
             );
-            if first_entity {
-                first_entity = false;
-            }
         }
         EntityType::Solid(ref solid) => {
-            entity_writer::solid::add_solid(
-                solid,
-                &mut description,
-                &mut solid_count,
-                &mut min,
-                &mut max,
-                first_entity,
-            );
-            if first_entity {
-                first_entity = false;
-            }
+            entity_writer::solid::add_solid(solid, &mut description, &mut solid_count);
         }
         _ => {
             other_count += 1;
@@ -157,7 +110,7 @@ fn main() -> Result<()> {
     });
 
     // Begin creating .elmt file
-    let mut definition = elmt_writer::set_definition(&mut min, &mut max);
+    let mut definition = elmt_writer::set_definition();
     elmt_writer::set_uuid(&mut definition);
     elmt_writer::set_names(file_name, &mut definition);
     elmt_writer::set_information(&mut definition);

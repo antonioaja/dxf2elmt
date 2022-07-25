@@ -2,17 +2,15 @@
 name = "dxf2elmt"
 version = "0.3.2"
 edition = "2021"
+description = "A CLI program to convert .dxf files into .elmt files"
 authors = ["Antonio Aguilar <github: antonioaja>"]
 readme = "README.md"
 repository = "https://github.com/antonioaja/dxf2elmt"
 license = "MIT"
 
 [profile.release]
-strip = true
-lto = true
-
-[profile.dev]
-opt-level = 2
+strip = false
+lto = false
 
 [profile.dev.package."*"]
 opt-level = 3
@@ -25,3 +23,4 @@ uuid = { version = "1.1.2", features = ["serde", "v4"] }
 tempfile = "3.3.0"
 clap = { version = "3.2.14", features = ["derive"] }
 anyhow = "1.0.58"
+min-max = "0.1.8"

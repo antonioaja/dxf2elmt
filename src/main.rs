@@ -9,7 +9,7 @@ use simple_xml_builder::*;
 use std::time::*;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about = "A CLI program to convert .dxf files into .elmt files", long_about = None)]
 struct Args {
     /// The .dxf file to convert
     #[clap(short, long, value_parser)]
@@ -44,7 +44,10 @@ fn main() -> Result<()> {
     let spline_step: u32 = args.spline_step;
 
     // Load dxf file
-    let drawing: Drawing = Drawing::load_file(file_name).context(format!("Failed to load {}...\n\tMake sure the file is a valid .dxf file.", file_name))?;
+    let drawing: Drawing = Drawing::load_file(file_name).context(format!(
+        "Failed to load {}...\n\tMake sure the file is a valid .dxf file.",
+        file_name
+    ))?;
     if !verbose_output {
         println!("{} loaded...", file_name);
     }
@@ -61,22 +64,11 @@ fn main() -> Result<()> {
     let mut solid_count: u32 = 0;
     let mut other_count: u32 = 0;
 
-    // Create output file for .elmt
-    let mut out_file = file_writer::create_file(verbose_output, file_name).context("Failed to create output file.")?;
+    // Account for dimensions of drawing
+    let mut min: [i32; 2] = [0, 0];
+    let mut max: [i32; 2] = [10, 10];
+    let mut first_entity: bool = true;
 
-    // Definition defintion ;)
-    let mut definition = elmt_writer::set_definition();
-
-    // Create uuid
-    elmt_writer::set_uuid(&mut definition);
-
-    // Define names
-    elmt_writer::set_names(file_name, &mut definition);
-
-    // Define information
-    elmt_writer::set_information(&mut definition);
-
-    // Start description
     let mut description: XMLElement = XMLElement::new("description");
 
     // Loop through all entities, appending to xml file
@@ -85,13 +77,34 @@ fn main() -> Result<()> {
             entity_writer::circle::add_circle(circle, &mut description, &mut circle_count);
         }
         EntityType::Line(ref line) => {
-            entity_writer::line::add_line(line, &mut description, &mut line_count);
+            entity_writer::line::add_line(
+                line,
+                &mut description,
+                &mut line_count,
+                &mut min,
+                &mut max,
+                first_entity,
+            );
+            if first_entity {
+                first_entity = false;
+            }
         }
         EntityType::Arc(ref arc) => {
             entity_writer::arc::add_arc(arc, &mut description, &mut arc_count);
         }
         EntityType::Spline(ref spline) => {
-            entity_writer::spline::add_spline(spline, &mut description, &mut spline_count, spline_step);
+            entity_writer::spline::add_spline(
+                spline,
+                &mut description,
+                &mut spline_count,
+                spline_step,
+                &mut min,
+                &mut max,
+                first_entity,
+            );
+            if first_entity {
+                first_entity = false;
+            }
         }
         EntityType::Text(ref text) => {
             entity_writer::text::add_text(text, e, &mut description, &mut text_count, dtext);
@@ -100,22 +113,58 @@ fn main() -> Result<()> {
             entity_writer::ellipse::add_ellipse(ellipse, &mut description, &mut ellipse_count);
         }
         EntityType::Polyline(ref polyline) => {
-            entity_writer::polyline::add_polyline(polyline, &mut description, &mut polyline_count);
+            entity_writer::polyline::add_polyline(
+                polyline,
+                &mut description,
+                &mut polyline_count,
+                &mut min,
+                &mut max,
+                first_entity,
+            );
+            if first_entity {
+                first_entity = false;
+            }
         }
         EntityType::LwPolyline(ref lwpolyline) => {
             entity_writer::lwpolyline::add_lwpolyline(
                 lwpolyline,
                 &mut description,
                 &mut lwpolyline_count,
+                &mut min,
+                &mut max,
+                first_entity,
             );
+            if first_entity {
+                first_entity = false;
+            }
         }
         EntityType::Solid(ref solid) => {
-            entity_writer::solid::add_solid(solid, &mut description, &mut solid_count);
+            entity_writer::solid::add_solid(
+                solid,
+                &mut description,
+                &mut solid_count,
+                &mut min,
+                &mut max,
+                first_entity,
+            );
+            if first_entity {
+                first_entity = false;
+            }
         }
         _ => {
             other_count += 1;
         }
     });
+
+    // Begin creating .elmt file
+    let mut definition = elmt_writer::set_definition(&mut min, &mut max);
+    elmt_writer::set_uuid(&mut definition);
+    elmt_writer::set_names(file_name, &mut definition);
+    elmt_writer::set_information(&mut definition);
+
+    // Create output file for .elmt
+    let mut out_file = file_writer::create_file(verbose_output, file_name)
+        .context("Failed to create output file.")?;
 
     // Write to output file
     elmt_writer::end_elmt(definition, description, &mut out_file);

@@ -1,7 +1,7 @@
-use uuid::*;
+use anyhow::*;
 use simple_xml_builder::*;
 use std::fs::File;
-use anyhow::*;
+use uuid::*;
 
 pub fn set_information(definition: &mut XMLElement) {
     let mut information: XMLElement = XMLElement::new("informations");
@@ -24,19 +24,22 @@ pub fn set_uuid(definition: &mut XMLElement) {
     definition.add_child(uuid);
 }
 
-pub fn set_definition() -> XMLElement {
+pub fn set_definition(min: &mut [i32], max: &mut [i32]) -> XMLElement {
     let mut definition: XMLElement = XMLElement::new("definition");
-    definition.add_attribute("height", 10);
-    definition.add_attribute("width", 10);
-    definition.add_attribute("hotspot_x", 0);
-    definition.add_attribute("hotspot_y", 0);
+    definition.add_attribute("height", max[1] - min[1]);
+    definition.add_attribute("width", max[0] - min[0]);
+    definition.add_attribute("hotspot_x", (max[0] - min[0]) / 2);
+    definition.add_attribute("hotspot_y", (max[1] - min[1]) / 2);
     definition.add_attribute("version", "0.80");
     definition.add_attribute("link_type", "simple");
     definition.add_attribute("type", "element");
-    definition
+    return definition;
 }
 
 pub fn end_elmt(mut definition: XMLElement, description: XMLElement, out_file: &mut File) {
     definition.add_child(description);
-    definition.write(out_file).context("Failed to write output file.").unwrap();
+    definition
+        .write(out_file)
+        .context("Failed to write output file.")
+        .unwrap();
 }

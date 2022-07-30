@@ -1,4 +1,5 @@
-use dxf::entities::*;
+use dxf::entities::Text;
+use dxf::entities::Entity;
 use simple_xml_builder::XMLElement;
 
 pub fn add_text(text: &Text, e: &Entity, description: &mut XMLElement, text_count: &mut u32, dynamic_text: bool) {

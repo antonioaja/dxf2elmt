@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Polyline;
 use simple_xml_builder::XMLElement;
 
 pub fn add_polyline(polyline: &Polyline, description: &mut XMLElement, polyline_count: &mut u32) {

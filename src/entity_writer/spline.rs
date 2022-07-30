@@ -1,6 +1,6 @@
 extern crate bspline;
 
-use dxf::entities::*;
+use dxf::entities::Spline;
 use simple_xml_builder::XMLElement;
 use std::ops::{Add, Mul};
 

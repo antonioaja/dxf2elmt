@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::LwPolyline;
 use simple_xml_builder::XMLElement;
 
 pub fn add_lwpolyline(

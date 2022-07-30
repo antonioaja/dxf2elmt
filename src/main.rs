@@ -3,9 +3,9 @@ extern crate simple_xml_builder;
 
 use anyhow::*;
 use clap::Parser;
-use dxf::entities::*;
+use dxf::entities::EntityType;
 use dxf::Drawing;
-use simple_xml_builder::*;
+use simple_xml_builder::XMLElement;
 use std::time::*;
 
 #[derive(Parser, Debug)]

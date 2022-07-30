@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Ellipse;
 use simple_xml_builder::XMLElement;
 
 pub fn add_ellipse(ellipse: &Ellipse, description: &mut XMLElement, ellipse_count: &mut u32) {

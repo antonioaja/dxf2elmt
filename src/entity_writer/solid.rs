@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Solid;
 use simple_xml_builder::XMLElement;
 
 pub fn add_solid(solid: &Solid, description: &mut XMLElement, solid_count: &mut u32) {

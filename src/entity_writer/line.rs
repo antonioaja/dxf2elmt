@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Line;
 use simple_xml_builder::XMLElement;
 
 pub fn add_line(line: &Line, description: &mut XMLElement, line_count: &mut u32) {

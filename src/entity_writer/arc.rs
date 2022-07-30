@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Arc;
 use simple_xml_builder::XMLElement;
 
 pub fn add_arc(arc: &Arc, description: &mut XMLElement, arc_count: &mut u32) {

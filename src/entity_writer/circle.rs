@@ -1,4 +1,4 @@
-use dxf::entities::*;
+use dxf::entities::Circle;
 use simple_xml_builder::XMLElement;
 
 pub fn add_circle(circle: &Circle, description: &mut XMLElement, circle_count: &mut u32) {

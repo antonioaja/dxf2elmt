@@ -1,7 +1,7 @@
 use anyhow::*;
-use simple_xml_builder::*;
+use simple_xml_builder::XMLElement;
 use std::fs::File;
-use uuid::*;
+use uuid::Uuid;
 
 pub fn set_information(definition: &mut XMLElement) {
     let mut information: XMLElement = XMLElement::new("informations");

@@ -116,8 +116,7 @@ fn main() -> Result<()> {
     elmt_writer::set_information(&mut definition);
 
     // Create output file for .elmt
-    let mut out_file = file_writer::create_file(verbose_output, file_name)
-        .context("Failed to create output file.")?;
+    let mut out_file = file_writer::create_file(verbose_output, file_name);
 
     // Write to output file
     elmt_writer::end_elmt(definition, description, &mut out_file);
@@ -141,7 +140,7 @@ fn main() -> Result<()> {
 
         println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
     } else {
-        file_writer::verbose_print(out_file).context("Failed to print output to terminal.")?;
+        file_writer::verbose_print(out_file);
     }
 
     Ok(())

@@ -1,6 +1,6 @@
 [package]
 name = "dxf2elmt"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2021"
 description = "A CLI program to convert .dxf files into .elmt files"
 authors = ["Antonio Aguilar <github: antonioaja>"]
@@ -21,5 +21,5 @@ simple-xml-builder = "1.1.0"
 bspline = "1.1.0"
 uuid = { version = "1.1.2", features = ["serde", "v4"] }
 tempfile = "3.3.0"
-clap = { version = "3.2.14", features = ["derive"] }
+clap = { version = "3.2.22", features = ["derive"] }
 anyhow = "1.0.58"

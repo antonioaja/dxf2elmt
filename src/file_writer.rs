@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::*;
 use tempfile::tempfile;
 
-pub fn create_file(verbose_output: bool, file_name: &str) -> File {
+pub fn create_file(verbose_output: bool, info: bool, file_name: &str) -> File {
     let mut out_file = tempfile().context("Could not create temporary file");
     if !verbose_output {
         out_file = File::create(format!("{}.elmt", &file_name[0..file_name.len() - 4]))

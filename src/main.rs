@@ -26,6 +26,10 @@ struct Args {
     /// Determine the number of lines you want each spline to have (more lines = greater resolution)
     #[clap(short, long, value_parser, default_value_t = 100)]
     spline_step: u32,
+
+    /// Toggles information output... defaults to on
+    #[clap(short, long, value_parser, default_value_t = false)]
+    info: bool,
 }
 
 pub mod elmt_writer;
@@ -42,13 +46,14 @@ fn main() -> Result<()> {
     let verbose_output: bool = args.verbose;
     let dtext: bool = args.dtext;
     let spline_step: u32 = args.spline_step;
+    let info: bool = !args.info;
 
     // Load dxf file
     let drawing: Drawing = Drawing::load_file(file_name).context(format!(
         "Failed to load {}...\n\tMake sure the file is a valid .dxf file.",
         file_name
     ))?;
-    if !verbose_output {
+    if !verbose_output && info {
         println!("{} loaded...", file_name);
     }
 
@@ -116,12 +121,12 @@ fn main() -> Result<()> {
     elmt_writer::set_information(&mut definition);
 
     // Create output file for .elmt
-    let mut out_file = file_writer::create_file(verbose_output, file_name);
+    let mut out_file = file_writer::create_file(verbose_output, info, file_name);
 
     // Write to output file
     elmt_writer::end_elmt(definition, description, &mut out_file);
 
-    if !verbose_output {
+    if info {
         println!("Conversion complete!\n");
 
         // Print stats
@@ -139,7 +144,7 @@ fn main() -> Result<()> {
         println!("Currently Unsupported: {}", other_count);
 
         println!("\nTime Elapsed: {} ms", now.elapsed().as_millis());
-    } else {
+    } else if verbose_output{
         file_writer::verbose_print(out_file);
     }
 

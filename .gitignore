@@ -6,3 +6,6 @@ cross.toml
 /.cargo
 *.txt
 *.exe
+/.vscode
+Cargo.lock
+.DS_Store

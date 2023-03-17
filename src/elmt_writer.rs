@@ -13,7 +13,7 @@ pub fn set_names(file_name: &str, definition: &mut XMLElement) {
     let mut names: XMLElement = XMLElement::new("names");
     let mut name = XMLElement::new("name");
     name.add_attribute("lang", "en");
-    name.add_text((&file_name[0..file_name.len() - 4]).to_string());
+    name.add_text(file_name[0..file_name.len() - 4].to_string());
     names.add_child(name);
     definition.add_child(names);
 }
@@ -33,7 +33,7 @@ pub fn set_definition() -> XMLElement {
     definition.add_attribute("version", "0.80");
     definition.add_attribute("link_type", "simple");
     definition.add_attribute("type", "element");
-    return definition;
+    definition
 }
 
 pub fn end_elmt(mut definition: XMLElement, description: XMLElement, out_file: &mut File) {
